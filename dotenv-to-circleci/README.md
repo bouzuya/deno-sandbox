@@ -16,8 +16,7 @@ Compile file:///Users/bouzuya/ghq/github.com/bouzuya/deno-sandbox/dotenv-to-circ
 ## Usage
 
 ```bash
+$ export CIRCLE_TOKEN=xxx
 $ echo 'foo=bar' | dotenv-to-circleci --vcs gh --owner bouzuya --repo repo1
 { name: "foo", value: "xxxxr" }
 ```
-
-
