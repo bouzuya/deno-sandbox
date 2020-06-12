@@ -55,48 +55,61 @@ export async function deleteEnvVar(
   return response.status === 200 ? Promise.resolve(body) : Promise.reject(body);
 }
 
+export function isAction(s: string): s is "create" | "delete" {
+  return ["create", "delete"].includes(s);
+}
+
+export function parseArgs(
+  args: string[],
+): { action: "create" | "delete"; vcs: string; owner: string; repo: string } {
+  const flags = parseFlags(args, {
+    string: ["action", "owner", "repo", "vcs"],
+  });
+  const action: string = flags["action"] ?? "create";
+  const vcs: string | undefined = flags["vcs"];
+  const owner: string | undefined = flags["owner"];
+  const repo: string | undefined = flags["repo"];
+  if (!isAction(action)) throw new Error("action is invalid");
+  if (typeof vcs === "undefined") throw new Error("vcs is undefined");
+  if (typeof owner === "undefined") throw new Error("owner is undefined");
+  if (typeof repo === "undefined") throw new Error("repo is undefined");
+  return { action, owner, repo, vcs };
+}
+
 export async function main(): Promise<void> {
   const circleToken = Deno.env.get("CIRCLE_TOKEN");
   if (typeof circleToken === "undefined") throw new Error("CIRCLE_TOKEN");
 
-  const flags = parseFlags(Deno.args, {
-    string: ["vcs", "owner", "repo"],
-  });
-  const action: string = flags["action"] ?? "create";
-  const vcsSlug: string | undefined = flags["vcs"];
-  const orgName: string | undefined = flags["owner"];
-  const repoName: string | undefined = flags["repo"];
-  if (action === "create" || action === "delete") {
-    throw new Error("action is invalid");
-  }
-  if (typeof vcsSlug === "undefined") throw new Error("vcs is undefined");
-  if (typeof orgName === "undefined") throw new Error("owner is undefined");
-  if (typeof repoName === "undefined") throw new Error("repo is undefined");
-
   const input = await readStdin();
   const json = parseDotenv(input);
+  const { action, owner, repo, vcs } = parseArgs(Deno.args);
   for await (const [name, value] of Object.entries(json)) {
-    if (action === "create") {
-      const responseBody = await createEnvVar(
-        circleToken,
-        vcsSlug,
-        orgName,
-        repoName,
-        name,
-        value,
-      );
-      console.log(responseBody);
-    } else if (action === "delete") {
-      const responseBody = await deleteEnvVar(
-        circleToken,
-        vcsSlug,
-        orgName,
-        repoName,
-        name,
-      );
-      console.log(responseBody);
-    } else {
-      throw new Error("unreachable");
+    switch (action) {
+      case "create": {
+        const responseBody = await createEnvVar(
+          circleToken,
+          vcs,
+          owner,
+          repo,
+          name,
+          value,
+        );
+        console.log(responseBody);
+        break;
+      }
+      case "delete": {
+        const responseBody = await deleteEnvVar(
+          circleToken,
+          vcs,
+          owner,
+          repo,
+          name,
+        );
+        console.log(responseBody);
+        break;
+      }
+      default:
+        throw new Error("unreachable");
     }
   }
 }
