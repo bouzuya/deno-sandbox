@@ -1,5 +1,5 @@
 import * as flags from "https://deno.land/std@v0.57.0/flags/mod.ts";
-import * as fs from "https://deno.land/std@v0.57.0/fs/mod.ts";
+import * as fs from "https://deno.land/std@v0.57.0/node/fs.ts";
 
 type AcceptedCount = Array<{ user_id: string; problem_count: number }>;
 
@@ -9,9 +9,14 @@ type Response = {
 };
 
 export async function loadCache(cachePath: string): Promise<Response | null> {
-  if (!await fs.exists(cachePath)) return null;
   try {
-    const json = await fs.readJson(cachePath);
+    const data: Uint8Array | string | null | undefined = await fs.promises
+      .readFile(
+        cachePath,
+        { encoding: "utf8" },
+      );
+    if (typeof data !== "string") return null;
+    const json = JSON.parse(data);
     // TODO: validate json
     if (typeof json !== "object" || json === null) return null;
     const o = json as { [k: string]: unknown };
@@ -29,7 +34,8 @@ export async function saveCache(
   cachePath: string,
   cache: Response,
 ): Promise<void> {
-  return fs.writeJson(cachePath, cache);
+  const data = JSON.stringify(cache);
+  return fs.promises.writeFile(cachePath, data, { encoding: "utf8" });
 }
 
 async function loadAllAcceptedCount(
