@@ -1,4 +1,4 @@
-import { parse as parseFlags } from "https://deno.land/std@v0.55.0/flags/mod.ts";
+import { parse as parseFlags } from "https://deno.land/std@v0.57.0/flags/mod.ts";
 import { parse as parseDotenv } from "../dotenv-to-json/mod.ts";
 
 export async function readStdin(): Promise<string> {

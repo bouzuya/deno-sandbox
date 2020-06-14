@@ -1,8 +1,18 @@
 import {
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@v0.55.0/testing/asserts.ts";
-import { parseArgs } from "./mod.ts";
+} from "https://deno.land/std@v0.57.0/testing/asserts.ts";
+import { parseArgs, isAction } from "./mod.ts";
+
+Deno.test("isAction", () => {
+  assertEquals(isAction("create"), true);
+  assertEquals(isAction("delete"), true);
+  assertEquals(isAction("update"), false);
+  const s = "create";
+  assertEquals(isAction(s), true);
+  const t: "create" | "delete" = s;
+  assertEquals(s, t);
+});
 
 Deno.test("parseArgs", () => {
   assertThrows(() => parseArgs([]));
