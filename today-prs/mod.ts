@@ -127,12 +127,10 @@ export async function main(): Promise<void> {
       updatedAt >= since && closedAt !== null && closedAt >= since
   );
   const inReview = prs.filter(
-    ({ assignee, closedAt, updatedAt }) =>
-      updatedAt >= since && closedAt === null && assignee !== user
+    ({ assignee, closedAt }) => closedAt === null && assignee !== user
   );
   const wip = prs.filter(
-    ({ assignee, closedAt, updatedAt }) =>
-      updatedAt >= since && closedAt === null && assignee === user
+    ({ assignee, closedAt }) => closedAt === null && assignee === user
   );
   const message = format(user, org, closed, inReview, wip);
   console.log(message);
