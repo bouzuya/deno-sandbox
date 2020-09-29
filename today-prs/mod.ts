@@ -1,4 +1,4 @@
-import { parse as parseFlags } from "https://deno.land/std@v0.61.0/flags/mod.ts";
+import { parse as parseFlags } from "https://deno.land/std@0.71.0/flags/mod.ts";
 
 interface PullRequest {
   assignee: string | null;
@@ -77,27 +77,27 @@ function format(
   return `
 # 今日やったこと
 
-今日やること: <>
+昨日やったこと: <>
 
-# 今日マージされた PR
+## 今日マージされた PR
 
 ${formatPullRequests(closed)}
 
 <https://github.com/pulls?q=archived%3Afalse+author%3A${user}+is%3Aclosed+is%3Apr+org%3A${org}+sort%3Aupdated-desc>
 
-# まだマージされていない PR
+## まだマージされていない PR
 
 ${formatPullRequests(inReview)}
 
 <https://github.com/pulls?q=archived%3Afalse+-assignee:${user}+author%3A${user}+is%3Aopen+is%3Apr+org%3A${org}+sort%3Aupdated-desc>
 
-# 作業中の PR
+## 作業中の PR
 
 ${formatPullRequests(wip)}
 
 <https://github.com/pulls?q=archived%3Afalse+assignee:${user}+author%3A${user}+is%3Aopen+is%3Apr+org%3A${org}+sort%3Aupdated-desc>
 
-# 明日やること
+## 明日やること
 
 
   `.trim();
